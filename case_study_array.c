@@ -23,6 +23,7 @@ void menu();
 void instructions();
 void add_friend();
 void delete_friend();
+void update_friend();
 void display_friends();
 void invalid_input(); 
 
@@ -89,7 +90,7 @@ void add_friend()
 
   int input;
   printf("1 - Add more friends\n");
-  printf("2 - Back to main menu\n");
+  printf("2 - Back to main menu\n\n");
   printf("Enter action: ");
   scanf("%d", &input);
 
@@ -126,9 +127,9 @@ void delete_friend()
   int confirm_delete, delete_another;
   if (index != -1)
   {
-    printf("delete %s?\n", friends_list[index].lastname);
+    printf("delete friend %s?\n", friends_list[index].lastname);
     printf("1 - yes\n");
-    printf("2 - cancel\n");
+    printf("2 - cancel\n\n");
     printf("Enter action: ");
     scanf("%d", &confirm_delete);
 
@@ -145,7 +146,7 @@ void delete_friend()
     else
     {
       printf("1 - delete another friend\n");
-      printf("2 - back to main menu\n");
+      printf("2 - back to main menu\n\n");
       printf("Enter action: ");
       scanf("%d", &delete_another);
 
@@ -163,7 +164,7 @@ void delete_friend()
   {
     printf("friend not found\n\n");
     printf("1 - delete another friend\n");
-    printf("2 - back to main menu\n");
+    printf("2 - back to main menu\n\n");
     printf("Enter action: ");
     scanf("%d", &delete_another);
 
@@ -176,6 +177,118 @@ void delete_friend()
       menu();
     }
   }
+
+  free(temp);
+}
+
+void update_friend()
+{
+  char *temp = (char*) malloc(50*sizeof(char));
+  printf("\nEnter last name: ");
+  scanf(" %[^\n]s", temp);
+
+  int index = -1;
+  for (int i=0; i<total_friends; ++i)
+  {
+    if (strcmp(friends_list[i].lastname, temp) == 0)
+    {
+      index = i;
+    }
+  }  
+
+  int confirm_update, update_another;
+  if (index != -1)
+  {
+    printf("\nupdate friend %s?\n", friends_list[index].lastname);
+    printf("1 - last name\n");
+    printf("2 - first name\n");
+    printf("3 - birtdate\n");
+    printf("4 - gender\n");
+    printf("5 - favourite color\n");
+    printf("6 - cancel\n\n");
+    printf("Enter action: ");
+    scanf("%d", &confirm_update);
+
+    char *temp2 = (char*) malloc(50*sizeof(char));
+
+    if (confirm_update == 1)
+    {
+      printf("\nEnter new last name: ");
+      scanf(" %[^\n]s", temp2);
+
+      friends_list[index].lastname = temp2;
+      printf("\nUpdated friend #%d last name to %s\n", index+1, temp2);
+    }
+    else if (confirm_update == 2)
+    {
+      printf("\nEnter new first name: ");
+      scanf(" %[^\n]s", temp2);
+
+      friends_list[index].firstname = temp2;
+      printf("\nUpdated friend #%d first name to %s\n\n", index+1, temp2);
+    } 
+    else if (confirm_update == 3)
+    {
+      printf("\nEnter new birthdate (MMDDYYYY): ");
+      scanf(" %[^\n]s", temp2);
+
+      friends_list[index].birthdate = temp2;
+      printf("\nUpdated friend #%d birthdate to %s\n\n", index+1, temp2);
+    } 
+    else if (confirm_update == 4)
+    {
+      if (friends_list[index].gender == 'M')
+      {
+        friends_list[index].gender = 'F';
+        printf("\nUpdated friend #%d gender to F\n\n", index+1);
+      }      
+      else 
+      {
+        friends_list[index].gender = 'M';
+        printf("\nUpdated friend #%d gender to M\n\n", index+1);
+      }
+    }
+    else if (confirm_update == 5)
+    {
+      printf("\nEnter new favourite color: ");
+      scanf(" %[^\n]s", temp2);
+
+      friends_list[index].color = temp2;
+      printf("\nUpdated friend#%d's favourite color to %s\n\n", index+1, temp2);
+    } 
+
+    printf("1 - update another friend\n");
+    printf("2 - back to main menu\n\n");
+    printf("Enter action: ");
+    scanf("%d", &update_another);
+
+    if (update_another == 1)
+    {
+      update_friend();
+    }
+    else 
+    {
+      menu();
+    }
+  } 
+  else 
+  {
+    printf("friend not found\n\n");
+    printf("1 - update another friend\n");
+    printf("2 - back to main menu\n");
+    printf("Enter action: ");
+    scanf("%d", &update_another);
+
+    if (update_another == 1)
+    {
+      update_friend();
+    }
+    else 
+    {
+      menu();
+    }
+  }
+  free(temp);
 }
 
 void display_friends()
@@ -217,7 +330,7 @@ void menu()
       delete_friend();
       break;
     case 3:
-      printf("update");
+      update_friend();
       break;
     case 4:
       display_friends();
