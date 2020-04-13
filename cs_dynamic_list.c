@@ -13,10 +13,17 @@ typedef struct friend {
   int age;
   char gender;
   char *color; 
-} Friend;
+} friend_t;
+
+typedef struct node {
+  friend_t val;
+  struct node *next;
+} node_t;
+
+node_t *head, *tail = NULL;
 
 int list_size = 2;
-Friend *friends_list;
+friend_t *friends_list;
 int total_friends = 0;
 
 void menu();
@@ -26,10 +33,15 @@ void delete_friend();
 void update_friend();
 void display_friends();
 void invalid_input(); 
+void add_to_tail(friend_t f);
+void print_list();
+friend_t remove_head();
+friend_t remove_tail();
+int search_list(char *lname);
 
 int main() 
 {
-  friends_list = (Friend*) malloc(list_size*sizeof(Friend));
+  friends_list = (friend_t*) malloc(list_size*sizeof(friend_t));
 
   if (friends_list == NULL) 
   {
@@ -43,15 +55,148 @@ int main()
   return 0;
 }
 
+void add_to_tail(friend_t f) 
+{ 
+  node_t *current;
+  node_t *new_node = (node_t*) malloc(sizeof(node_t));
+
+  new_node->val = f;
+  new_node->next = NULL;
+
+  if (head == NULL) 
+  {
+    head = tail = new_node;
+  }
+  else
+  {
+    current = tail;
+    current->next = new_node;
+    tail = new_node;
+  }
+}
+
+friend_t remove_tail()
+{
+  friend_t retval;
+  
+  if (head->next == NULL)
+  {
+    retval = head->val;
+    free(head);
+    return retval;
+  }
+  
+  node_t *current = head;
+  while (current->next->next != NULL)
+  {
+    current = current->next;
+  }
+
+  retval = current->next->val;
+  free(current->next);
+  current->next = NULL;
+  tail = current;
+  return retval;
+}
+
+friend_t remove_head()
+{
+  friend_t retval;
+  node_t *next_node = NULL;
+
+  next_node = head->next;
+  retval = head->val;
+  free(head);
+  head = next_node;
+  return retval;
+}
+
+void search_and_update(int n, char *s, int t)
+{ 
+  node_t *current = head;
+
+  for (int i=0; i<n; i++)
+  {
+    if (current->next == NULL) return;
+    
+    current = current->next;
+  }
+
+  if (t == 1) 
+  {
+    current->val.lastname = s;
+  }
+  else if (t == 2)
+  {
+    current->val.firstname = s;
+  }
+  else if (t == 3)
+  {
+    current->val.birthdate = s;
+  }
+  else if (t == 4)
+  {
+    if (current->val.gender == 'M')
+    {
+      current->val.gender = 'F';
+      printf("\nUpdated friend #%d gender to F\n\n", n+1);
+    }
+    else 
+    {
+      current->val.gender = 'M';
+      printf("\nUpdated friend #%d gender to M\n\n", n+1);
+    }
+  }
+  else if (t == 5)
+  {
+    current->val.color = s;
+  }
+}
+
+int search_list(char *lname)
+{
+  int index = -1, found = -1;
+  node_t *current = head;
+
+  while (current != NULL)
+  {
+    ++index;
+    if (strcmp(current->val.lastname, lname) == 0)
+    { 
+      found = index;
+      break;
+    }
+    current = current->next;
+  } 
+  return found;
+}
+
+void print_list()
+{
+  node_t *current = head;
+  int count = 1;
+  while (current != NULL)
+  {
+    printf("friend #%d\n", count);
+    printf("first name: %s\n", current->val.firstname);
+    printf("last name: %s\n", current->val.lastname);
+    printf("birthdate: %s\n", current->val.birthdate);
+    printf("age: %d\n", current->val.age);
+    printf("gender: %c\n", current->val.gender);
+    printf("favourite color: %s\n\n", current->val.color);
+    current = current->next;
+    count++;
+  }
+}
+
 void add_friend()
 {  
-  Friend temp;
+  friend_t temp;
   temp.firstname = (char*) malloc(fname_size*sizeof(char));
   temp.lastname = (char*) malloc(lname_size*sizeof(char));
   temp.birthdate = (char*) malloc(bdate_size*sizeof(char));
   temp.color = (char*) malloc(color_size*sizeof(char));
 
-  // system("clear");
   printf("\nEnter friend information:\n");
   printf("Enter first name: ");
   scanf(" %[^\n]s", temp.firstname);
@@ -68,7 +213,7 @@ void add_friend()
     c++;
   }
   int byear;
-  sscanf(year, "%d", &byear);
+  scanf(year, "%d", &byear);
   temp.age = 2019 - byear;
 
   printf("Enter gender (M/F): ");
@@ -76,17 +221,8 @@ void add_friend()
   printf("Enter favourite color: ");
   scanf(" %[^\n]s", temp.color);
   
-  if (total_friends == list_size) 
-  {
-    friends_list = realloc(friends_list, list_size*2 * sizeof(Friend));
-    list_size *= 2;
-    printf("\nreallocating memory, new size of list is %d\n", list_size);
-  }
-  // system("clear");
+  add_to_tail(temp);
   printf("\nSuccessfully added %s\n\n", temp.firstname);
-
-  friends_list[total_friends] = temp;
-  total_friends++;
 
   int input;
   printf("1 - Add more friends\n");
@@ -115,19 +251,12 @@ void delete_friend()
   printf("\nEnter last name: ");
   scanf(" %[^\n]s", temp);
 
-  int index = -1;
-  for (int i=0; i<total_friends; ++i)
-  {
-    if (strcmp(friends_list[i].lastname, temp) == 0)
-    {
-      index = i;
-    }
-  }
+  int index = search_list(temp);
 
   int confirm_delete, delete_another;
   if (index != -1)
   {
-    printf("delete friend %s?\n", friends_list[index].lastname);
+    printf("delete friend %s?\n", temp);
     printf("1 - yes\n");
     printf("2 - cancel\n\n");
     printf("Enter action: ");
@@ -135,12 +264,32 @@ void delete_friend()
 
     if (confirm_delete == 1)
     {
-      for (int i=index; i<total_friends-1; ++i)
+      friend_t del;
+      if (strcmp(head->val.lastname, temp) == 0)
       {
-        friends_list[i] = friends_list[i+1];
+        del = remove_head();    
       }
-      total_friends--;
-      printf("\nsuccessfully deleted %s\n", temp);
+      else if (strcmp(tail->val.lastname, temp) == 0)
+      {
+        del = remove_tail();
+      }
+      else
+      {
+        node_t *current = head;
+        while (current->next != NULL)
+        {
+          if (strcmp(current->next->val.lastname, temp) == 0)
+          { 
+            node_t *temp_node = current->next->next;
+            del = current->next->val;
+            free(current->next);
+            current->next = temp_node;
+            break;
+          }
+        }
+      }
+
+      printf("\nsuccessfully deleted %s\n", del.lastname);
       menu();
     }
     else
@@ -162,7 +311,7 @@ void delete_friend()
   } 
   else 
   {
-    printf("friend not found\n\n");
+    printf("\nfriend not found\n\n");
     printf("1 - delete another friend\n");
     printf("2 - back to main menu\n\n");
     printf("Enter action: ");
@@ -177,7 +326,6 @@ void delete_friend()
       menu();
     }
   }
-
   free(temp);
 }
 
@@ -187,19 +335,12 @@ void update_friend()
   printf("\nEnter last name: ");
   scanf(" %[^\n]s", temp);
 
-  int index = -1;
-  for (int i=0; i<total_friends; ++i)
-  {
-    if (strcmp(friends_list[i].lastname, temp) == 0)
-    {
-      index = i;
-    }
-  }  
+  int index = search_list(temp);
 
   int confirm_update, update_another;
   if (index != -1)
   {
-    printf("\nupdate friend %s?\n", friends_list[index].lastname);
+    printf("\nupdate friend %s?\n", temp);
     printf("1 - last name\n");
     printf("2 - first name\n");
     printf("3 - birtdate\n");
@@ -216,7 +357,7 @@ void update_friend()
       printf("\nEnter new last name: ");
       scanf(" %[^\n]s", temp2);
 
-      friends_list[index].lastname = temp2;
+      search_and_update(index, temp2, confirm_update);
       printf("\nUpdated friend #%d last name to %s\n", index+1, temp2);
     }
     else if (confirm_update == 2)
@@ -224,7 +365,7 @@ void update_friend()
       printf("\nEnter new first name: ");
       scanf(" %[^\n]s", temp2);
 
-      friends_list[index].firstname = temp2;
+      search_and_update(index, temp2, confirm_update);
       printf("\nUpdated friend #%d first name to %s\n\n", index+1, temp2);
     } 
     else if (confirm_update == 3)
@@ -232,28 +373,19 @@ void update_friend()
       printf("\nEnter new birthdate (MMDDYYYY): ");
       scanf(" %[^\n]s", temp2);
 
-      friends_list[index].birthdate = temp2;
+      search_and_update(index, temp2, confirm_update);
       printf("\nUpdated friend #%d birthdate to %s\n\n", index+1, temp2);
     } 
     else if (confirm_update == 4)
     {
-      if (friends_list[index].gender == 'M')
-      {
-        friends_list[index].gender = 'F';
-        printf("\nUpdated friend #%d gender to F\n\n", index+1);
-      }      
-      else 
-      {
-        friends_list[index].gender = 'M';
-        printf("\nUpdated friend #%d gender to M\n\n", index+1);
-      }
+      search_and_update(index, temp2, confirm_update);
     }
     else if (confirm_update == 5)
     {
       printf("\nEnter new favourite color: ");
       scanf(" %[^\n]s", temp2);
 
-      friends_list[index].color = temp2;
+      search_and_update(index, temp2, confirm_update);
       printf("\nUpdated friend#%d's favourite color to %s\n\n", index+1, temp2);
     } 
 
@@ -273,7 +405,7 @@ void update_friend()
   } 
   else 
   {
-    printf("friend not found\n\n");
+    printf("\nfriend not found\n\n");
     printf("1 - update another friend\n");
     printf("2 - back to main menu\n");
     printf("Enter action: ");
@@ -293,24 +425,13 @@ void update_friend()
 
 void display_friends()
 {
-  if (total_friends == 0) 
+  if (head == NULL) 
   {
-    // system("clear");
     printf("\nNo friends yet.\n");
   } else 
   {
-    // system("clear");
     printf("\nFriends:\n\n");
-    for (int i=0; i < total_friends; i++)
-    {
-      printf("friend #%d\n", i+1);
-      printf("first name: %s\n", friends_list[i].firstname);
-      printf("last name: %s\n", friends_list[i].lastname);
-      printf("birthdate: %s\n", friends_list[i].birthdate);
-      printf("age: %d\n", friends_list[i].age);
-      printf("gender: %c\n", friends_list[i].gender);
-      printf("favourite color: %s\n\n", friends_list[i].color);
-    }
+    print_list();
   }
   menu();
 }
@@ -344,7 +465,6 @@ void menu()
 
 void instructions()
 { 
-  // system("clear");
   printf("\nMain menu:\n\n");
   printf("1 - Add a friend\n");
   printf("2 - Delete a friend\n");
@@ -356,7 +476,6 @@ void instructions()
 
 void invalid_input() 
 {
-  // system("clear");
   printf("Invalid input!\n-----\n");
   menu();
 }
