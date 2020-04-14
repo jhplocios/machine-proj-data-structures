@@ -22,10 +22,6 @@ typedef struct node {
 
 node_t *head, *tail = NULL;
 
-int list_size = 2;
-friend_t *friends_list;
-int total_friends = 0;
-
 void menu();
 void instructions();
 void add_friend();
@@ -41,17 +37,7 @@ int search_list(char *lname);
 
 int main() 
 {
-  friends_list = (friend_t*) malloc(list_size*sizeof(friend_t));
-
-  if (friends_list == NULL) 
-  {
-    printf("Error! memory not allocated.");
-    exit(0);
-  }
-
   menu();
-
-  if (friends_list) free(friends_list);
   return 0;
 }
 
