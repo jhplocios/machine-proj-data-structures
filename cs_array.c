@@ -267,11 +267,13 @@ void UpdateFriend()
       printf("\nUpdated favourite color to %s\n\n", new_color);
       free(new_color);
     }
+    else if (confirm_update == 6)
+      UpdateMore();
     else 
     {
       printf("\nInvalid input!\n\n");
       UpdateMore();
-    } 
+    }
 
     UpdateMore();
   } 
