@@ -228,9 +228,9 @@ void update_friend()
     printf("1 - last name\n");
     printf("2 - first name\n");
     printf("3 - birtdate\n");
-    printf("4 - gender\n");
-    printf("5 - favourite color\n");
-    printf("6 - cancel\n\n");
+    // printf("4 - gender\n");
+    printf("4 - favourite color\n");
+    printf("5 - cancel\n\n");
     printf("Enter action: ");
     scanf("%d", &confirm_update);
 
@@ -253,17 +253,17 @@ void update_friend()
       scanf(" %[^\n]s", temp2);
       line = line + 2;
     } 
+    // else if (confirm_update == 4)
+    // {
+    //   line = line + 4;
+    // }
     else if (confirm_update == 4)
-    {
-      line = line + 4;
-    }
-    else if (confirm_update == 5)
     {
       printf("\nEnter new favourite color: ");
       scanf(" %[^\n]s", temp2);
       line = line + 5;
     } 
-    else if (confirm_update > 5)
+    else if (confirm_update > 4)
     {
       printf("1 - update another friend\n");
       printf("2 - back to main menu\n\n");
@@ -372,7 +372,6 @@ void menu()
       delete_friend();
       break;
     case 3:
-      fp1 = fopen(file_path, "rb");
       update_friend();
       break;
     case 4:
