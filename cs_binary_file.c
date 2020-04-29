@@ -4,73 +4,72 @@
 #define file_path "friend.bin"
 #define temp_path "temp.bin"
 
-typedef struct friend {
-  char firstname[31];
-  char lastname[41];
-  char birthdate[9];
+FILE *fp, *fp1;
+
+typedef struct {
+  char fname[31];
+  char lname[41];
+  int bdate;
   int age;
   char gender;
-  char color[16];
+  char color[16]; 
 } friend_t;
 
-void menu();
-void instructions();
-void invalid_input();
-void add_friend();
-void display_friends();
-void add_more();
-void delete_more();
-int confirm_delete();
-void update_more();
-int confirm_update();
+void Menu();
+void Instructions();
+void InvalidInput();
+void AddFriend();
+void DisplayFriends();
+void AddMore();
+void DeleteMore();
+int ConfirmDelete();
+void UpdateMore();
+int ConfirmUpdate();
 
 int main() {
-  menu();
+  Menu();
   return 0;
 }
 
-void add_friend()
+void GetFriendInfo(friend_t *p)
+{
+  printf("\nEnter friend information:\n");
+  printf("Enter first name: ");
+  scanf(" %[^\n]s", p->fname);
+  printf("Enter last name: ");
+  scanf(" %[^\n]s", p->lname);
+  printf("Enter birth date (MMDDYYYY): ");
+  scanf(" %d", &p->bdate);
+
+  // compute age
+  int year = p->bdate % 10000;
+  p->age = 2019 - year;
+
+  printf("Enter gender (M/F): ");
+  scanf(" %c", &p->gender);
+  printf("Enter favourite color: ");
+  scanf(" %[^\n]s", p->color);
+}
+
+void AddFriend()
 {  
-  FILE *fp = fopen(file_path, "ab");
+  fp = fopen(file_path, "ab");
   if (fp == NULL) printf("\nFile not open for reading");
 
   friend_t *ptr = (friend_t*) malloc(sizeof(friend_t));
+  GetFriendInfo(ptr);
 
-  printf("\nEnter friend information:\n");
-  printf("Enter first name: ");
-  scanf(" %[^\n]s", ptr->firstname);
-  printf("Enter last name: ");
-  scanf(" %[^\n]s", ptr->lastname);
-  printf("Enter birth date (MMDDYYYY): ");
-  scanf(" %[^\n]s", ptr->birthdate);
-
-  char year[4];
-  int c = 0;
-  while (c < 4) 
-  {
-    year[c] = ptr->birthdate[4+c];
-    c++;
-  }
-  int byear;
-  scanf(year, "%d", &byear);
-  ptr->age = 2019 - byear;
-
-  printf("Enter gender (M/F): ");
-  scanf(" %c", &ptr->gender);
-  printf("Enter favourite color: ");
-  scanf(" %[^\n]s", ptr->color);
-  
   fwrite(ptr, sizeof(friend_t), 1, fp);
 
-  printf("\nSuccessfully added %s\n\n", ptr->firstname);
+  printf("\nSuccessfully added %s\n\n", ptr->fname);
 
   fclose(fp);
   free(ptr);
 
-  add_more();
+  AddMore();
 }
 
-void add_more()
+void AddMore()
 {
   int input;
   printf("1 - Add more friends\n");
@@ -79,24 +78,20 @@ void add_more()
   scanf("%d", &input);
 
   if (input == 1) 
-  {
-    add_friend();
-  } 
+    AddFriend();
   else if (input == 2) 
-  {
-    menu();
-  } 
+    Menu();
   else 
   {
     printf("\nInvalid input!\n\n");
-    add_more();
+    AddMore();
   }
 }
 
-void search_friend(int *f, int *f_i)
+void SearchFriend(int *f, int *i)
 {
   friend_t *buffer = (friend_t*) malloc(sizeof(friend_t));
-  FILE *fp = fopen(file_path, "rb");
+  fp = fopen(file_path, "rb");
   if (fp == NULL) printf("\nError reading file");
 
   char *lname = (char*) malloc(41*sizeof(char));
@@ -109,33 +104,32 @@ void search_friend(int *f, int *f_i)
 
   while (fread(buffer, sizeof(friend_t), 1, fp) == 1)
   {
-    if (strstr(buffer->lastname, lname) != NULL) 
-    {
-      if (strstr(buffer->firstname, fname) != NULL)
+    if (strstr(buffer->lname, lname) != NULL) 
+      if (strstr(buffer->fname, fname) != NULL)
       {
         *f = 1;
         break;
       }
-    }
-    (*f_i)++;
+    (*i)++;
   }
 
   free(buffer);
+  free(lname);
+  free(fname);
   fclose(fp);
 }
 
-void delete_friend()
+void DeleteFriend()
 {
-  FILE *fp1, *fp;
   int found = -1;
   int friend_index = 0;
 
-  search_friend(&found, &friend_index);
+  SearchFriend(&found, &friend_index);
 
   if (found != -1)
   {
     printf("\ncontinue deleting?\n");
-    int confirm = confirm_delete();
+    int confirm = ConfirmDelete();
 
     if (confirm == 1)
     {
@@ -161,26 +155,24 @@ void delete_friend()
       remove(file_path);  		
       rename(temp_path, file_path);
 
-      delete_more();
+      DeleteMore();
     }
     else if (confirm == 2)
-    {
-      delete_more();
-    }
+      DeleteMore();
     else
     {
       printf("\nInvalid input!\n\n");
-      delete_more();
+      DeleteMore();
     }
   } 
   else 
   {
     printf("\nfriend not found\n\n");
-    delete_more();
+    DeleteMore();
   }
 }
 
-int confirm_delete()
+int ConfirmDelete()
 {
   int u_input;
   printf("1 - yes\n");
@@ -190,7 +182,7 @@ int confirm_delete()
   return u_input;
 }
 
-void delete_more()
+void DeleteMore()
 {
   int delete_another;
   printf("1 - delete another friend\n");
@@ -199,48 +191,43 @@ void delete_more()
   scanf("%d", &delete_another);
   
   if (delete_another == 1)
-  {
-    delete_friend();
-  }
+    DeleteFriend();
   else if (delete_another == 2) 
-  {
-    menu();
-  } 
+    Menu();
   else 
   {
     printf("\nInvalid input!\n\n");
-    delete_more();
+    DeleteMore();
   }
 }
 
-void update_friend()
+void UpdateFriend()
 {
-  FILE *fp1, *fp;
   int found = -1;
   int friend_index = 0;
 
-  search_friend(&found, &friend_index);
+  SearchFriend(&found, &friend_index);
 
   if (found != -1)
   {
     friend_t *temp = (friend_t*) malloc(sizeof(friend_t));
-    printf("\ncontinue updating?\n");
-    int confirm = confirm_update();
+    printf("\nwhat will you update?\n");
+    int confirm = ConfirmUpdate();
 
     if (confirm == 1)
     {
       printf("\nEnter new last name: ");
-      scanf(" %[^\n]s", temp->lastname);
+      scanf(" %[^\n]s", temp->lname);
     }
     else if (confirm == 2)
     {
       printf("\nEnter new first name: ");
-      scanf(" %[^\n]s", temp->firstname);
+      scanf(" %[^\n]s", temp->fname);
     }
     else if (confirm == 3)
     {
       printf("\nEnter new birthdate: ");
-      scanf(" %[^\n]s", temp->birthdate);
+      scanf("%d", &temp->bdate);
     }
     else if (confirm == 4)
     {}
@@ -251,7 +238,7 @@ void update_friend()
     }
     else
     {
-      update_more();
+      UpdateMore();
     }
     
     fp = fopen(file_path, "rb");
@@ -263,32 +250,24 @@ void update_friend()
       if (ctr == friend_index)  
       { 
         if (confirm == 1) 
-        {
-          strcpy(buffer->lastname, temp->lastname);
-        } 
+          strcpy(buffer->lname, temp->lname);
         else if (confirm == 2) 
-        {
-          strcpy(buffer->firstname, temp->firstname);
-        }
+          strcpy(buffer->fname, temp->fname);
         else if (confirm == 3) 
         {
-          strcpy(buffer->birthdate, temp->birthdate);
+          buffer->bdate = temp->bdate;
+          int year = temp->bdate % 10000;
+          buffer->age = 2019 - year;
         }
         else if (confirm == 4) 
         {
           if (buffer->gender == 'M')
-          {
             buffer->gender = 'F';
-          }
           else 
-          {
             buffer->gender = 'M';
-          }
         }
         else if (confirm == 5) 
-        {
           strcpy(buffer->color, temp->color);
-        }
 
         fwrite(buffer, sizeof(friend_t), 1, fp1);
       } else {
@@ -303,16 +282,16 @@ void update_friend()
     free(buffer);
     remove(file_path);  		
     rename(temp_path, file_path);
-    update_more();
+    UpdateMore();
   }
   else
   {
     printf("\nfriend not found\n\n");
-    update_more();
+    UpdateMore();
   }
 }
 
-int confirm_update()
+int ConfirmUpdate()
 {
   int u_input;
   printf("1 - last name\n");
@@ -326,7 +305,7 @@ int confirm_update()
   return u_input; 
 }
 
-void update_more()
+void UpdateMore()
 {
   int update_another;
   printf("1 - update another friend\n");
@@ -335,84 +314,99 @@ void update_more()
   scanf("%d", &update_another);
   
   if (update_another == 1)
-  {
-    update_friend();
-  }
+    UpdateFriend();
   else if (update_another == 2) 
-  {
-    menu();
-  } 
+    Menu();
   else 
   {
     printf("\nInvalid input!\n\n");
-    update_more();
+    UpdateMore();
   }
 }
 
-void display_friends()
+void DisplayFriends()
 {  
-  FILE *fp1 = fopen(file_path, "rb");
+  fp1 = fopen(file_path, "rb");
   if (fp1 == NULL) printf("\nFile not open for reading");
 
   friend_t *ptr = (friend_t*) malloc(sizeof(friend_t));
     
   printf("\nFriends:\n\n");
 
-  while (fread(ptr, sizeof(friend_t), 1, fp1) == 1) 
+  if (fread(ptr, sizeof(friend_t), 1, fp1) == 1)
   {
-    printf("%s\n", ptr->firstname);
-    printf("%s\n", ptr->lastname);
-    printf("%s\n", ptr->birthdate);
-    printf("%d\n", ptr->age);
-    printf("%c\n", ptr->gender);
-    printf("%s\n\n", ptr->color);
+    fclose(fp1);
+    fp1 = fopen(file_path, "r+");
+    if (fp1 == NULL) printf("\nFile not open for reading");
+    
+    int count = 1;
+    while (fread(ptr, sizeof(friend_t), 1, fp1) == 1) 
+    {
+      printf("friend #%d\n", count);
+      printf("first name: %s\n", ptr->fname);
+      printf("last name: %s\n", ptr->lname);
+      printf("birthdate: %d\n", ptr->bdate);
+      printf("age: %d\n", ptr->age);
+      printf("gender: %c\n", ptr->gender);
+      printf("favourite color: %s\n\n", ptr->color);
+      count++;
+    }
   }
+  else
+    printf("\nNo friends yet.\n");
 
   fclose(fp1);
   free(ptr);
-  menu();
+  Menu();
 }
 
-void menu() 
+void BubbleSort()
+{}
+
+void Menu() 
 {
   int input;
-  instructions();
+  Instructions();
     
   scanf("%d", &input);
   switch (input)
   { 
     case 1:
-      add_friend();
+      AddFriend();
       break;
     case 2:
-      delete_friend();
+      DeleteFriend();
       break;
     case 3:
-      update_friend();
+      UpdateFriend();
       break;
     case 4:
-      display_friends();
+      DisplayFriends();
       break;
     case 5:
+      BubbleSort();
+      break;
+    case 6:
       break;
     default:
-      invalid_input();
+      InvalidInput();
   }
 }
 
-void instructions()
+void Instructions()
 { 
   printf("\nMain menu:\n\n");
   printf("1 - Add a friend\n");
   printf("2 - Delete a friend\n");
   printf("3 - Update friend's info\n");
   printf("4 - Display friends\n");
-  printf("5 - Exit program\n\n");
+  printf("5 - Sort friends\n");
+  printf("6 - Exit program\n\n");
   printf("Enter action: ");
 }
 
-void invalid_input() 
+void InvalidInput() 
 {
   printf("Invalid input!\n\n");
-  menu();
+  Menu();
 }
