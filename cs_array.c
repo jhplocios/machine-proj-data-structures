@@ -344,6 +344,12 @@ void BubbleSort()
         swap(&friends.ptr[j], &friends.ptr[j+1]);
         flag=1;
       }
+      else if (friends.ptr[j].lname[0] == friends.ptr[j+1].lname[0])
+        if (friends.ptr[j].lname[1] > friends.ptr[j+1].lname[1]) 
+        {  
+          swap(&friends.ptr[j], &friends.ptr[j+1]);
+          flag=1;
+        }
     }
     if(flag==0)
       break;

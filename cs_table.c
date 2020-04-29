@@ -19,29 +19,29 @@ dbData db[10][6];
 
 int fcount = 0;
 
-void initialize();
-void menu();
-void instructions();
-void invalid_input();
-void add_more();
+void Initialize();
+void Menu();
+void Instructions();
+void InvalidInput();
+void AddMore();
 
 int main()
 {  
-  menu();
+  Menu();
   return 0;
 }
 
-void add_friend()
+void AddFriend()
 {
-  char *temp = (char*) malloc(31 * sizeof(char));
-  db[fcount][fname_a].data = (char*) malloc(31 * sizeof(char));
+  char *temp = (char*) malloc(31*sizeof(char));
+  db[fcount][fname_a].data = (char*) malloc(31*sizeof(char));
 
   printf("\nEnter friend information:\n");
   printf("Enter first name: ");
   scanf(" %[^\n]s", temp);
 
-  memcpy(db[fcount][fname_a].data, temp, 31 * sizeof(char));
-  printf("Copied string is %p\n", db[fcount][fname_a].data); 
+  memcpy(db[fcount][fname_a].data, temp, 31*sizeof(char));
+  printf("Copied string is %s\n", &(*(db+fcount)+fname_a)->data); 
 
 
   // printf("Enter last name: ");
@@ -68,10 +68,10 @@ void add_friend()
   fcount++;
   printf("\nSuccessfully added %p\n\n", db[fcount][fname_a].data);
   free(temp);
-  add_more();
+  AddMore();
 }
 
-void add_more()
+void AddMore()
 {
   int input;
   printf("1 - Add more friends\n");
@@ -81,20 +81,20 @@ void add_more()
 
   if (input == 1) 
   {
-    add_friend();
+    AddFriend();
   } 
   else if (input == 2) 
   {
-    menu();
+    Menu();
   } 
   else 
   {
     printf("\nInvalid input!\n\n");
-    add_more();
+    AddMore();
   }
 }
 
-void display_friends()
+void DisplayFriends()
 {
   printf("\nFriends:\n\n");
 
@@ -113,19 +113,19 @@ void display_friends()
   //   printf("%s\n\n", ptr->color);
   // }
 
-  menu();
+  Menu();
 }
 
-void menu() 
+void Menu() 
 {
   int input;
-  instructions();
+  Instructions();
     
   scanf("%d", &input);
   switch (input)
   { 
     case 1:
-      add_friend();
+      AddFriend();
       break;
     case 2:
       // delete_friend();
@@ -134,16 +134,16 @@ void menu()
       // update_friend();
       break;
     case 4:
-      display_friends();
+      DisplayFriends();
       break;
     case 5:
       break;
     default:
-      invalid_input();
+      InvalidInput();
   }
 }
 
-void instructions()
+void Instructions()
 { 
   printf("\nMain menu:\n\n");
   printf("1 - Add a friend\n");
@@ -154,8 +154,8 @@ void instructions()
   printf("Enter action: ");
 }
 
-void invalid_input() 
+void InvalidInput() 
 {
   printf("Invalid input!\n\n");
-  menu();
+  Menu();
 }
