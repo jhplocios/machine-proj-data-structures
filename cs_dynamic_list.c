@@ -496,6 +496,6 @@ void Instructions()
 
 void InvalidInput() 
 {
-  printf("Invalid input!\n\n");
+  printf("\nInvalid input!\n");
   Menu();
 }

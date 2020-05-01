@@ -121,13 +121,12 @@ void SearchByName(int *index)
 
   for (int i=0; i<friends.count; ++i)
   {
-    if (strcmp(&(*(friends.ptr+i)->lname), lname) == 0)
-      if (strcmp(&(*(friends.ptr+i)->fname), fname) == 0)
+    if (strcmp(friends.ptr[i].lname, lname) == 0)
+      if (strcmp(friends.ptr[i].fname, fname) == 0)
       {
         *index = i;
         break;
       }
-        
   }
   
   free(lname);
@@ -403,6 +402,6 @@ void Instructions()
 
 void InvalidInput() 
 {
-  printf("Invalid input!\n\n");
+  printf("\nInvalid input!\n");
   Menu();
 }
