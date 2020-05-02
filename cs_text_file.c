@@ -137,8 +137,8 @@ void DeleteFriend()
 
     if (confirm == 1)
     {
-      fp = fopen(file_path, "rb");
-      fp1 = fopen(temp_path, "wb");
+      fp = fopen(file_path, "r");
+      fp1 = fopen(temp_path, "w");
       friend_t *buffer = (friend_t*) malloc(sizeof(friend_t));
       int ctr = 0;
 
@@ -340,7 +340,7 @@ void DisplayFriends()
   if (fread(ptr, sizeof(friend_t), 1, fp1) == 1)
   {
     fclose(fp1);
-    fp1 = fopen(file_path, "r+");
+    fp1 = fopen(file_path, "r");
     if (fp1 == NULL) printf("\nFile not open for reading");
     
     printf("\nFriends:\n");

@@ -336,7 +336,7 @@ void DisplayFriends()
   if (fread(ptr, sizeof(friend_t), 1, fp1) == 1)
   {
     fclose(fp1);
-    fp1 = fopen(file_path, "r+");
+    fp1 = fopen(file_path, "rb");
     if (fp1 == NULL) printf("\nFile not open for reading");
     
     int count = 1;

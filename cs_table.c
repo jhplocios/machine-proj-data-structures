@@ -64,8 +64,8 @@ void AddFriend()
   char color[16];
 
   table.ptr[table.count][fname_a].s = (char*) malloc(31*sizeof(char));
-  table.ptr[table.count][lname_a].s = (char*) malloc(31*sizeof(char));
-  table.ptr[table.count][color_a].s = (char*) malloc(31*sizeof(char));
+  table.ptr[table.count][lname_a].s = (char*) malloc(41*sizeof(char));
+  table.ptr[table.count][color_a].s = (char*) malloc(16*sizeof(char));
 
   printf("\nEnter friend information:\n");
   printf("Enter first name: ");
